@@ -1,25 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-
+import { productViewAction } from "../Redux/Actions/ProductViewAction"
 function ProductView() {
     const { id } = useParams();
-    const [product, setProduct] = useState(null);
+    const dispatch = useDispatch();
+    const { product, error } = useSelector((state) => state.productView);
 
     useEffect(() => {
-        const getProductView = async () => {
-            try {
-                const response = await fetch(`https://fakestoreapi.com/products/${id}`);
-                const data = await response.json();
-                setProduct(data);
-            } catch (error) {
-                console.error("Error fetching product:", error);
-            }
-        };
+        if (id) {
+            dispatch(productViewAction(id));
+        }
+    }, [dispatch, id]);
 
-        if (id) getProductView();
-    }, [id]);
+    if (error) {
+        return <h1 className="text-center text-xl font-bold text-red-500">{error}</h1>;
+    }
 
-    if (!product) {
+    if (!product || Object.keys(product).length === 0) {
         return <h1 className="text-center text-xl font-bold">Loading...</h1>;
     }
 
@@ -36,8 +34,8 @@ function ProductView() {
                 <p className="text-xl font-semibold mt-3">${product.price}</p>
                 <p className="text-md text-gray-500 mt-2">Category: {product.category}</p>
                 <div className="mt-3">
-                    <p className="text-md text-gray-500">Rating: {product.rating.rate} / 5</p>
-                    <p className="text-md text-gray-500">Reviews: {product.rating.count}</p>
+                    <p className="text-md text-gray-500">Rating: {product?.rating?.rate} / 5</p>
+                    <p className="text-md text-gray-500">Reviews: {product?.rating?.count}</p>
                 </div>
             </div>
         </div>
